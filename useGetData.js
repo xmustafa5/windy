@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 
 function useGetData({
   api,
@@ -10,12 +10,16 @@ function useGetData({
   params,
   specificKey,
 }) {
+  const isSpecificKeyArray = Array.isArray(specificKey);
+
   async function fn() {
     const res = await axios({ method: method, url: api, params });
     return res.data[destructure];
   }
   let keyQuey = [key, specificKey];
-  if (specificKey) {
+  if (isSpecificKeyArray) {
+    keyQuey = [key, ...specificKey];
+  } else if (specificKey) {
     keyQuey = [key, specificKey];
   } else {
     keyQuey = [key];
@@ -27,8 +31,7 @@ function useGetData({
     enabled: enabled,
   });
 
-
-  return { data, isLoading, isError }
+  return { data, isLoading, isError };
 }
 
-export default useGetData
+export default useGetData;

@@ -22,7 +22,6 @@ function useWindy({
     });
     return { data, isLoading, isError };
   }
-  console.log('first')
   if (method === "post" ||  method === "delete" ||   method === "put") {
     const { mutate } = usePostData({
       api,
