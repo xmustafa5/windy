@@ -1,22 +1,58 @@
-import { UseMutationResult, UseQueryResult } from "@tanstack/react-query";
+import { MutationOptions } from "@tanstack/react-query";
+import useGetData, { GetDataResult } from "./useGetData";
+import usePostData, { PostDataResult } from "./usePostData";
 
-export interface UseWindyOptions {
+interface UseWindyOptions {
   api: string;
   method: "get" | "post" | "delete" | "put";
   destructure?: boolean;
   enabled?: boolean;
   key?: string;
   params?: Record<string, any>;
-  specificKey?: string;
+  specificKey?: string | (string | number)[];
 }
 
-export interface UseWindyResult {
+interface UseWindyResult {
   data?: any;
   isLoading: boolean;
   isError: boolean;
-  mutate?: UseMutationResult<any, unknown, any, any>["mutate"];
+  mutate?: (options?: MutationOptions<any, unknown, any, any>) => Promise<any>;
 }
 
-declare function useWindy(options: UseWindyOptions): UseWindyResult;
+function useWindy({
+  api,
+  method,
+  destructure,
+  enabled,
+  key,
+  params,
+  specificKey,
+}: UseWindyOptions): UseWindyResult {
+  if (method === "get") {
+    const { data, isLoading, isError } = useGetData({
+      api,
+      method,
+      destructure,
+      enabled,
+      key,
+      params,
+      specificKey,
+    }) as GetDataResult;
+    return { data, isLoading, isError };
+  }
+  if (method === "post" || method === "delete" || method === "put") {
+    const { mutate } = usePostData({
+      api,
+      method,
+      destructure,
+      key,
+      params,
+    }) as PostDataResult;
+    return { mutate };
+  }
+
+  // In case of invalid method, return empty result
+  return { isLoading: false, isError: false };
+}
 
 export default useWindy;
